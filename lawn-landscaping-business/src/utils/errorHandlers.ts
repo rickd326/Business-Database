@@ -1,5 +1,5 @@
 import { PostgrestError } from '@supabase/supabase-js';
-import { SupabaseError } from './SupabaseError';
+import { SupabaseError } from './SupabaseError.ts';
 
 export function handleSupabaseError(error: PostgrestError | null): SupabaseError {
   if (!error) {

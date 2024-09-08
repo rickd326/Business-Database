@@ -1,7 +1,7 @@
 import { SupabaseClient, PostgrestError } from '@supabase/supabase-js'
-import { Database } from '../types/supabaseSchema'
-import { handleSupabaseError } from './errorHandlers'
-import { SupabaseError } from './SupabaseError'
+import { Database } from '../types/supabaseSchema.ts'
+import { handleSupabaseError } from './errorHandlers.ts'
+import { SupabaseError } from './SupabaseError.ts'
 
 type Tables = Database['public']['Tables']
 
