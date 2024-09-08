@@ -1,5 +1,7 @@
-import { SupabaseClient, PostgrestError, PostgrestSingleResponse } from '@supabase/supabase-js'
+import { SupabaseClient, PostgrestError } from '@supabase/supabase-js'
 import { Database } from '../types/supabaseSchema'
+import { handleSupabaseError } from './errorHandlers'
+import { SupabaseError } from './SupabaseError'
 
 type Tables = Database['public']['Tables']
 
@@ -9,7 +11,8 @@ export async function getAll<T extends keyof Tables>(
   table: T
 ): Promise<Tables[T]['Row'][]> {
   const { data, error } = await supabase.from(table).select('*')
-  if (error) throw error
+  if (error) throw handleSupabaseError(error)
+  if (!data) throw new Error('No data returned')
   return (data as unknown) as Tables[T]['Row'][]
 }
 
@@ -19,20 +22,20 @@ export async function getById<T extends keyof Tables>(
   table: T,
   id: number
 ): Promise<Tables[T]['Row'] | null> {
-  const result: PostgrestSingleResponse<Tables[T]['Row']> = await supabase
+  const { data, error } = await supabase
     .from(table)
     .select('*')
     .eq(`${table.slice(0, -1)}_id`, id)
     .single()
   
-  if (result.error) {
-    if (result.error.code === 'PGRST116') {
+  if (error) {
+    if (error.code === 'PGRST116') {
       return null
     }
-    throw result.error
+    throw handleSupabaseError(error)
   }
   
-  return result.data
+  return (data as unknown) as Tables[T]['Row']
 }
 
 // Generic function to insert a new item
@@ -41,15 +44,15 @@ export async function insertItem<T extends keyof Tables>(
   table: T,
   item: Tables[T]['Insert']
 ): Promise<Tables[T]['Row']> {
-  const result = await supabase
+  const { data, error } = await supabase
     .from(table)
-    .insert(item as any) // Use 'any' to bypass strict type checking
+    .insert(item as any)
     .select()
 
-  if (result.error) throw result.error
-  if (!result.data || result.data.length === 0) throw new Error('No data returned after insert')
+  if (error) throw handleSupabaseError(error)
+  if (!data || data.length === 0) throw new Error('No data returned after insert')
   
-  return (result.data[0] as unknown) as Tables[T]['Row']
+  return (data[0] as unknown) as Tables[T]['Row']
 }
 
 // Generic function to update an item
@@ -59,16 +62,16 @@ export async function updateItem<T extends keyof Tables>(
   id: number,
   updates: Partial<Tables[T]['Update']>
 ): Promise<Tables[T]['Row']> {
-  const result = await supabase
+  const { data, error } = await supabase
     .from(table)
     .update(updates as any)
     .eq(`${table.slice(0, -1)}_id`, id)
     .select()
 
-  if (result.error) throw result.error
-  if (!result.data || result.data.length === 0) throw new Error('No data returned after update')
+  if (error) throw handleSupabaseError(error)
+  if (!data || data.length === 0) throw new Error('No data returned after update')
   
-  return (result.data[0] as unknown) as Tables[T]['Row']
+  return (data[0] as unknown) as Tables[T]['Row']
 }
 
 // Generic function to delete an item
@@ -81,7 +84,7 @@ export async function deleteItem<T extends keyof Tables>(
     .from(table)
     .delete()
     .eq(`${table.slice(0, -1)}_id`, id)
-  if (error) throw error
+  if (error) throw handleSupabaseError(error)
 }
 
 // Generic function for pagination
