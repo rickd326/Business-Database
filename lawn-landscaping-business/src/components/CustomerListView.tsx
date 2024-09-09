@@ -1,73 +1,89 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabaseClient.ts'; // Adjust this import path as needed
-import { Database } from '../lib/supabaseSchema.ts'; // Adjust if your schema file has a different name
+import { useNavigate } from 'react-router-dom';
+import { getCustomers, searchCustomers } from '../api/customerApi';
+import { Customer, Area } from '../types';
+import CustomerEditModal from './CustomerEditModal';
+import CustomerAddModal from './CustomerAddModal';
 
-type Customer = Database['public']['Tables']['customers']['Row'];
-
-const CustomerListView: React.FC = () => {
+function CustomerListView() {
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<string>('');
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedArea, setSelectedArea] = useState<Area | null>(null);
+  const [editCustomer, setEditCustomer] = useState<Customer | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const navigate = useNavigate();
 
-  
-  
   useEffect(() => {
-    const fetchCustomers = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('customers')
-          .select('*')
-          .order('last_name', { ascending: true });
-
-        if (error) throw error;
-        setCustomers(data || []);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCustomers();
   }, []);
 
-  useEffect(() => {
-    async function checkConnection() {
-      try {
-        const { data, error } = await supabase.from('customers').select('count', { count: 'exact' });
-        if (error) throw error;
-        setConnectionStatus('Connected to Supabase');
-        console.log('Connection successful, row count:', data);
-      } catch (error) {
-        setConnectionStatus('Failed to connect to Supabase');
-        console.error('Connection error:', error);
-      }
-    }
+  const fetchCustomers = async () => {
+    const data = await getCustomers();
+    setCustomers(data);
+    setFilteredCustomers(data);
+  };
 
-    checkConnection();
-  }, []);
+  const handleSearch = async () => {
+    const results = await searchCustomers(searchTerm);
+    setFilteredCustomers(results);
+  };
 
-  if (loading) return <div>Loading customers...</div>;
-  if (error) return <div>Error: {error}</div>;
+  const handleAreaFilter = (areaId: number) => {
+    setSelectedArea({ area_id: areaId } as Area);
+    setFilteredCustomers(customers.filter(c => c.area_id === areaId));
+  };
+
+  const handleEditCustomer = (customer: Customer) => {
+    setEditCustomer(customer);
+  };
+
+  const handleAddCustomer = () => {
+    setIsAddModalOpen(true);
+  };
+
+  const handleGoToServices = (customerId: number) => {
+    navigate(`/customer/${customerId}/services`);
+  };
 
   return (
     <div>
-      <p>Connection status: {connectionStatus}</p>
-      <h2>Customer List</h2>
-      {customers.length === 0 ? (
-        <p>No customers found.</p>
-      ) : (
-        <ul>
-          {customers.map((customer) => (
-            <li key={customer.customer_id}>
-              {customer.last_name} - {customer.email}
-            </li>
-          ))}
-        </ul>
+      <input 
+        type="text" 
+        value={searchTerm} 
+        onChange={(e) => setSearchTerm(e.target.value)} 
+        placeholder="Search customers..."
+      />
+      <button onClick={handleSearch}>Search</button>
+      <button onClick={handleAddCustomer}>Add Customer</button>
+      
+      {/* Area filter dropdown */}
+      {/* ... */}
+
+      {filteredCustomers.map(customer => (
+        <div key={customer.customer_id}>
+          {/* Customer info */}
+          <button onClick={() => handleEditCustomer(customer)}>Edit</button>
+          <button onClick={() => handleGoToServices(customer.customer_id)}>Services</button>
+        </div>
+      ))}
+
+      {editCustomer && (
+        <CustomerEditModal 
+          customer={editCustomer} 
+          onClose={() => setEditCustomer(null)}
+          onSave={fetchCustomers}
+        />
+      )}
+
+      {isAddModalOpen && (
+        <CustomerAddModal 
+          onClose={() => setIsAddModalOpen(false)}
+          onSave={fetchCustomers}
+        />
       )}
     </div>
   );
-};
+}
 
 export default CustomerListView;
