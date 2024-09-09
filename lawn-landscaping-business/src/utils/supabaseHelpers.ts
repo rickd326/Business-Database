@@ -1,5 +1,5 @@
 import { SupabaseClient, PostgrestError } from '@supabase/supabase-js'
-import { Database } from '../types/supabaseSchema.ts'
+import { Database } from '../lib/supabaseSchema.ts'
 import { handleSupabaseError } from './errorHandlers.ts'
 import { SupabaseError } from './SupabaseError.ts'
 

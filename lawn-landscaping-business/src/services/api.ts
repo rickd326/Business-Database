@@ -1,5 +1,5 @@
-import { supabase } from '../supabaseClient'
-import { Database } from '../types/supabaseSchema'
+import { supabase } from '../lib/supabaseClient'
+import { Database } from '../lib/supabaseSchema'
 
 type Tables = Database['public']['Tables']
 
