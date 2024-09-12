@@ -87,3 +87,19 @@ export interface Service {
   parent_service_id: Nullable<number>;
   updated_at: Nullable<Timestamp>;
 }
+export interface ActiveContractServicesRow {
+  contract_service_id: number;
+  contract_id: number;
+  service_id: number;
+  custom_description: Nullable<string>;
+  custom_price: Nullable<number>;
+  quantity: Nullable<number>;
+  start_date: Nullable<Date>;
+  end_date: Nullable<Date>;
+  notes: Nullable<Json>;
+  created_at: Nullable<Timestamp>;
+  updated_at: Nullable<Timestamp>;
+  status: string;
+  active: Nullable<boolean>;
+  customer_id: number;
+}

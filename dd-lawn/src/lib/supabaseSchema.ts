@@ -115,7 +115,7 @@ export interface Database {
           total_amount: Nullable<number>
           updated_at: Nullable<Timestamp>
           start_date: Date
-          status: Nullable<string>
+          active: boolean
           contract_id: number
           payment_plan: Nullable<string>
           created_at: Nullable<Timestamp>
@@ -126,7 +126,7 @@ export interface Database {
           total_amount?: Nullable<number>
           updated_at?: Nullable<Timestamp>
           start_date: Date
-          status?: Nullable<string>
+          active: boolean
           contract_id: number
           payment_plan?: Nullable<string>
           created_at?: Nullable<Timestamp>
@@ -137,7 +137,7 @@ export interface Database {
           total_amount?: Nullable<number>
           updated_at?: Nullable<Timestamp>
           start_date?: Date
-          status?: Nullable<string>
+          active: boolean
           contract_id?: number
           payment_plan?: Nullable<string>
           created_at?: Nullable<Timestamp>
@@ -263,7 +263,24 @@ export interface Database {
       }
     }
     Views: {
-      [_ in never]: never
+      active_contract_services: {
+        Row: {
+          contract_service_id: number;
+          contract_id: number;
+          service_id: number;
+          custom_description: Nullable<string>;
+          custom_price: Nullable<number>;
+          quantity: Nullable<number>;
+          start_date: Nullable<Date>;
+          end_date: Nullable<Date>;
+          notes: Nullable<Json>;
+          created_at: Nullable<Timestamp>;
+          updated_at: Nullable<Timestamp>;
+          status: string;
+          active: Nullable<boolean>;
+          customer_id: number;
+        }
+      }
     }
     Functions: {
       [_ in never]: never

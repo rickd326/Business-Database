@@ -1,32 +1,17 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'; // Updated imports
 import CustomerList from './components/CustomerList';
-import Contracts from './components/Contracts'; // Ensure this path is correct
-import ContractServices from './components/ContractServices'; // Ensure this path is correct
+import CustomerServices from './components/CustomerServices';
 
-function App() {
+const App: React.FC = () => {
   return (
     <Router>
-      <div className="App">
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/contracts">Contracts</Link>
-            </li>
-          </ul>
-        </nav>
-
-        <Routes>
-          <Route path="/" element={<CustomerList />} />
-          <Route path="/contracts" element={<Contracts />} />
-          <Route path="/contract-services/:contractId" element={<ContractServices />} />
-        </Routes>
-      </div>
+      <Routes> // Replaced Switch with Routes
+        <Route path="/customers" element={<CustomerList />} /> // Updated Route syntax
+        <Route path="/customers/:customerId/services" element={<CustomerServices />} /> // Updated Route syntax
+      </Routes>
     </Router>
   );
-}
+};
 
 export default App;
