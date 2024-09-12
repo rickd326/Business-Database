@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabaseClient'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import CustomerEdit from './CustomerEdit'
 import CustomerCreate from './CustomerCreate'
 import { Database } from '../lib/supabaseSchema'
+import ContractsModal from './ContractsModal'; // Import the ContractsModal component
+import { Contract } from '../types/index';  // Adjust the import path as necessary
+
 
 const CustomerList: React.FC = () => {
   const [customers, setCustomers] = useState<Database['public']['Tables']['customers']['Row'][]>([])
@@ -12,11 +15,16 @@ const CustomerList: React.FC = () => {
   const [selectedAreaId, setSelectedAreaId] = useState<number | null>(null)
   const [areas, setAreas] = useState<Database['public']['Tables']['areas']['Row'][]>([])
   const [editCustomerId, setEditCustomerId] = useState<number | null>(null)
+  const [contracts, setContracts] = useState<Contract[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const navigate = useNavigate()
+
 
   useEffect(() => {
     fetchCustomers()
     fetchAreas()
+    fetchContracts(); // Implement this function based on your application's logic
   }, [])
 
   const fetchCustomers = async () => {
@@ -33,6 +41,14 @@ const CustomerList: React.FC = () => {
       .select('*')
     if (error) console.error('Error fetching areas:', error)
     else setAreas(data || [])
+  }
+
+  const fetchContracts = async () => {
+    const { data, error } = await supabase
+      .from('contracts')
+      .select('*')
+    if (error) console.error('Error fetching contracts:', error)
+    else setContracts(data || [])
   }
 
   useEffect(() => {
@@ -58,6 +74,13 @@ const CustomerList: React.FC = () => {
     }
   }
 
+  const handleNavigate = () => {
+    navigate('/contracts')
+  }
+
+  const openModal = () => setIsModalOpen(true)
+  const closeModal = () => setIsModalOpen(false)
+
   return (
     <div>
       <h1>Customer List</h1>
@@ -77,6 +100,8 @@ const CustomerList: React.FC = () => {
         ))}
       </select>
       <button onClick={() => setIsCreateModalOpen(true)}>New Customer</button>
+      <button onClick={handleNavigate}>View Contracts</button>
+      <button onClick={openModal} className="btn btn-primary">Contracts</button>
       <table>
         <thead>
           <tr>
@@ -96,9 +121,7 @@ const CustomerList: React.FC = () => {
               <td>{customer.phone_1}</td>
               <td>
                 <button onClick={() => setEditCustomerId(customer.customer_id)}>Edit</button>
-                <Link to={`/customer/${customer.customer_id}/services`}>
-                  <button>Services</button>
-                </Link>
+                <button onClick={openModal}>Contracts</button>
                 <button onClick={() => handleDelete(customer.customer_id)}>Delete</button>
               </td>
             </tr>
@@ -113,6 +136,9 @@ const CustomerList: React.FC = () => {
       )}
       {isCreateModalOpen && (
         <CustomerCreate onClose={() => setIsCreateModalOpen(false)} />
+      )}
+      {isModalOpen && (
+        <ContractsModal contracts={contracts} onClose={closeModal} />
       )}
     </div>
   )
