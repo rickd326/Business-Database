@@ -1,31 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import { ActiveContractServicesRow } from '../types';
 import { useParams } from 'react-router-dom';
-import { supabase } from '../lib/supabaseClient'
+import { supabase } from '../lib/supabaseClient';
 
+interface CustomerServicesProps {
+  customerId: string;
+}
 
-const CustomerServices: React.FC = () => {
-  const [services, setServices] = useState<ActiveContractServicesRow[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const { customerId } = useParams<{ customerId: string }>();
-
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const response = await fetch(`/api/services/active/${customerId}`);
-        const data: ActiveContractServicesRow[] = await response.json();
-        setServices(data);
-      } catch (error) {
-        console.error('Failed to fetch services:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchServices();
-  }, [customerId]);
-
-  if (isLoading) return <p>Loading...</p>;
+const CustomerServices: React.FC<CustomerServicesProps> = ({ customerId }) => {
+    const [services, setServices] = useState<ActiveContractServicesRow[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+  
+    useEffect(() => {
+      const fetchServices = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('active_contract_services')
+            .select('*')
+            .eq('customer_id', customerId)
+            .eq('active', true);
+  
+          if (error) throw error;
+          setServices(data);
+        } catch (error) {
+          console.error('Failed to fetch services:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+  
+      fetchServices();
+    }, [customerId]);
 
   return (
     <div>
