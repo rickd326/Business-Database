@@ -5,7 +5,9 @@ import CustomerEdit from './CustomerEdit'
 import CustomerCreate from './CustomerCreate'
 import { Database } from '../lib/supabaseSchema'
 import { Contract } from '../types/index';  // Adjust the import path as necessary
-
+import StyledSection from '../ui/StyledSection';
+import {TableHeader, TableCell} from '../ui/TableStyles';
+import Button from '../ui/Button';
 
 const CustomerList: React.FC = () => {
   const [customers, setCustomers] = useState<Database['public']['Tables']['customers']['Row'][]>([])
@@ -42,7 +44,7 @@ const CustomerList: React.FC = () => {
 
   const handleOpenServices = (customerId: number) => {
     // Navigate to the CustomerServices page with the customerId
-    navigate(`/customers/${customerId}/services`);
+    navigate(`${customerId}/services`);
   };
 
   useEffect(() => {
@@ -70,53 +72,80 @@ const CustomerList: React.FC = () => {
 
 
   return (
-    <div>
-      <h1>Customer List</h1>
+    <div className="max-w-4xl mx-auto p-5 bg-white shadow-lg rounded-lg">
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Customer List</h1>
       <input
         type="text"
         placeholder="Search customers..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
+        className="inline-block w-half px-1 py-2 mt-2 mx-5 text-base text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none focus:ring"
       />
       <select
         value={selectedAreaId || ''}
         onChange={(e) => setSelectedAreaId(e.target.value ? Number(e.target.value) : null)}
+        className="inline-block w-half px-4 py-2 mt-2 mx-5 text-base text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none focus:ring"
       >
         <option value="">All Areas</option>
         {areas.map(area => (
           <option key={area.area_id} value={area.area_id}>{area.area_name}</option>
         ))}
       </select>
-      <button onClick={() => setIsCreateModalOpen(true)}>New Customer</button>
+      <Button 
+         className="bg-yellow-300 hover:bg-yellow-500 text-black" 
+        onClick={() => setIsCreateModalOpen(true)}>
+        New Customer
+       </Button>
       
 
-
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Address</th>
-            <th>Phone</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
+     
+      <StyledSection title="List of Customers" isTable={true}>
+        <table className="min-w-half divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+            <TableHeader text="ID" />
+            <TableHeader text="Name" />
+            <TableHeader text="Address" />
+            <TableHeader text="Phone" />
+            <TableHeader text="Edit" />
+            <TableHeader text="Services" />
+            <TableHeader text="Delete" />
+            </tr>
+          </thead>
+       
         <tbody>
           {filteredCustomers.map(customer => (
             <tr key={customer.customer_id}>
-              <td>{customer.customer_id}</td>
-              <td>{`${customer.first_name} ${customer.last_name}`}</td>
-              <td>{customer.street_address}</td>
-              <td>{customer.phone_1}</td>
-              <td>
-                <button onClick={() => setEditCustomerId(customer.customer_id)}>Edit</button>
-                <button onClick={() => handleOpenServices(customer.customer_id)}>Services</button>
-                <button onClick={() => handleDelete(customer.customer_id)}>Delete</button>
-              </td>
+              <TableCell>{customer.customer_id}</TableCell>
+              <TableCell>{`${customer.first_name} ${customer.last_name}`}</TableCell>
+              <TableCell>{customer.street_address}</TableCell>
+              <TableCell>{customer.phone_1}</TableCell>
+              <TableCell>
+                <Button 
+                  className="bg-blue-700 hover:bg-blue-500 text-white" 
+                  onClick={() => setEditCustomerId(customer.customer_id)}>
+                  Edit
+                </Button>
+              </TableCell>
+              <TableCell>
+                <Button 
+                  className="bg-blue-700 hover:bg-blue-500 text-white" 
+                  onClick={() => handleOpenServices(customer.customer_id)}>
+                  Services
+                </Button>
+              </TableCell>
+              <TableCell>
+                <Button 
+                  className="bg-red-700 hover:bg-red-900 text-white" 
+                  onClick={() => handleDelete(customer.customer_id)}>
+                  DELETE
+                </Button>
+              </TableCell>
             </tr>
           ))}
         </tbody>
       </table>
+      </StyledSection>
       {editCustomerId && (
         <CustomerEdit
           customerId={editCustomerId}
