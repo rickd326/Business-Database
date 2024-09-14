@@ -5,9 +5,9 @@ import CustomerEdit from './CustomerEdit'
 import CustomerCreate from './CustomerCreate'
 import { Database } from '../lib/supabaseSchema'
 import { Contract } from '../types/index';  // Adjust the import path as necessary
-import StyledSection from '../ui/StyledSection';
-import {TableHeader, TableCell} from '../ui/TableStyles';
-import Button from '../ui/Button';
+import StyledSection from '../ui/StyledSectionTw';
+import {TableHeader, TableCell} from '../ui/TableStylesTw';
+import Button from '../ui/ButtonTw';
 
 const CustomerList: React.FC = () => {
   const [customers, setCustomers] = useState<Database['public']['Tables']['customers']['Row'][]>([])
@@ -122,14 +122,14 @@ const CustomerList: React.FC = () => {
               <TableCell>{customer.phone_1}</TableCell>
               <TableCell>
                 <Button 
-                  className="bg-blue-700 hover:bg-blue-500 text-white" 
+                  
                   onClick={() => setEditCustomerId(customer.customer_id)}>
                   Edit
                 </Button>
               </TableCell>
               <TableCell>
                 <Button 
-                  className="bg-blue-700 hover:bg-blue-500 text-white" 
+                  
                   onClick={() => handleOpenServices(customer.customer_id)}>
                   Services
                 </Button>
@@ -150,6 +150,7 @@ const CustomerList: React.FC = () => {
         <CustomerEdit
           customerId={editCustomerId}
           onClose={() => setEditCustomerId(null)}
+          onCustomerUpdated={() => fetchCustomers()} // Handle customer update
         />
       )}
       {isCreateModalOpen && (

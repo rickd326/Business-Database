@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { ActiveContractServicesRow } from '../types';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
-import StyledSection from '../ui/StyledSection';
-import {TableHeader, TableCell} from '../ui/TableStyles';
+import StyledSection from '../ui/StyledSectionTw';
+import {TableHeader, TableCell} from '../ui/TableStylesTw';
 
 interface CustomerServicesProps {
   customerId: string;

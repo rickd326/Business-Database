@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { Database } from '../lib/supabaseSchema';
+import Button from '../ui/ButtonTw';
+import Input from '../ui/InputTw';
 
 type Customer = Database['public']['Tables']['customers']['Row'];
 
@@ -33,43 +35,43 @@ const CustomerCreate: React.FC<CustomerCreateProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="modal">
-      <h2>Create New Customer</h2>
+    <div className="max-w-4xl mx-auto p-5 bg-white shadow-lg rounded-lg">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">Create New Customer</h2>
       <form onSubmit={handleSubmit}>
-        <input
+        <Input
           type="text"
           value={customer.first_name || ''}
           onChange={(e) => setCustomer({ ...customer, first_name: e.target.value })}
           placeholder="First Name"
-          required
+         
         />
-        <input
+        <Input
           type="text"
           value={customer.last_name || ''}
           onChange={(e) => setCustomer({ ...customer, last_name: e.target.value })}
           placeholder="Last Name"
           required
         />
-        <input
+        <Input
           type="text"
           value={customer.street_address || ''}
           onChange={(e) => setCustomer({ ...customer, street_address: e.target.value })}
           placeholder="Street Address"
         />
-        <input
+        <Input
           type="text"
           value={customer.phone_1 || ''}
           onChange={(e) => setCustomer({ ...customer, phone_1: e.target.value })}
           placeholder="Phone 1"
         />
-        <input
+        <Input
           type="text"
           value={customer.phone_2 || ''}
           onChange={(e) => setCustomer({ ...customer, phone_2: e.target.value })}
           placeholder="Phone 2"
         />
-        <button type="submit">Create Customer</button>
-        <button type="button" onClick={onClose}>Cancel</button>
+        <Button type="submit" className="mx-2">Create Customer</Button>
+        <Button type="button" onClick={onClose}>Cancel</Button>
       </form>
     </div>
   );

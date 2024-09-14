@@ -2,6 +2,7 @@ export type Nullable<T> = T | null;
 export type Json = string | number | boolean | null | { [key: string]: Json } | Json[];
 export type Timestamp = string;
 export type Date = string;
+import './global.css';  // Import once here
 
 export interface Area {
   area_id: number;

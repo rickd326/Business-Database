@@ -7,8 +7,8 @@ interface ButtonProps {
 
 const Button: React.FC<ButtonProps> = ({ children, onClick, className, type = "button" }) => {
   // Default styles for the button
-  const baseClasses = "px-4 py-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-offset-2";
-  
+  const baseClasses = "px-4 py-2 rounded shadow focus:outline-none focus:ring-2 focus:ring-offset-2 bg-blue-700 hover:bg-blue-500 text-white";
+
   // Combine default classes with any custom classes passed via props
   const buttonClasses = `${baseClasses} ${className}`;
 
