@@ -8,9 +8,10 @@ type Customer = Database['public']['Tables']['customers']['Row'];
 
 interface CustomerCreateProps {
   onClose: () => void;
+  onCustomerAdded: (customer: Customer) => void; // New callback prop
 }
 
-const CustomerCreate: React.FC<CustomerCreateProps> = ({ onClose }) => {
+const CustomerCreate: React.FC<CustomerCreateProps> = ({ onClose, onCustomerAdded }) => {
   const [customer, setCustomer] = useState<Partial<Customer>>({});
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -28,8 +29,9 @@ const CustomerCreate: React.FC<CustomerCreateProps> = ({ onClose }) => {
       .select();
 
     if (error) console.error('Error creating customer:', error);
-    else {
+    else if (data && data.length > 0) {
       alert('Customer created successfully!');
+      onCustomerAdded(data[0]); // Call the callback with the new customer
       onClose();
     }
   };

@@ -54,7 +54,7 @@ const CustomerEdit: React.FC<CustomerEditProps> = ({ customerId, onClose, onCust
 
   return (
     <div className="max-w-4xl mx-auto p-5 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Edit Customer</h2>
+      <h2 className="text-lg font-bold text-gray-800 mb-2">Edit Customer</h2>
       <form onSubmit={handleSubmit}>
         <Input
           type="text"

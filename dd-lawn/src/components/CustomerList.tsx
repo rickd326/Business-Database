@@ -19,12 +19,49 @@ const CustomerList: React.FC = () => {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const navigate = useNavigate()
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [sortOption, setSortOption] = useState<string>('id-asc');
 
   useEffect(() => {
     fetchCustomers()
     fetchAreas()
     // Removed fetchContracts from here as it requires a customerId
   }, [])
+
+  useEffect(() => {
+    const sorted = [...customers].sort((a, b) => {
+      switch (sortOption) {
+        case 'id-asc':
+          return a.customer_id - b.customer_id;
+        case 'id-desc':
+          return b.customer_id - a.customer_id;
+        case 'last-name-asc':
+          return a.last_name.localeCompare(b.last_name);
+        case 'last-name-desc':
+          return b.last_name.localeCompare(a.last_name);
+        case 'area-asc':
+          return (areas.find(area => area.area_id === a.area_id)?.area_name || '').localeCompare(
+            areas.find(area => area.area_id === b.area_id)?.area_name || ''
+          );
+        case 'area-desc':
+          return (areas.find(area => area.area_id === b.area_id)?.area_name || '').localeCompare(
+            areas.find(area => area.area_id === a.area_id)?.area_name || ''
+          ) * -1;
+        default:
+          return 0;
+      }
+    });
+
+    const filtered = sorted.filter(customer => 
+      (customer.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.street_address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.customer_id.toString().includes(searchTerm) ||
+      customer.phone_1?.includes(searchTerm) ||
+      customer.phone_2?.includes(searchTerm)) &&
+      (selectedAreaId === null || customer.area_id === selectedAreaId)
+    );
+
+    setFilteredCustomers(filtered);
+  }, [customers, searchTerm, selectedAreaId, sortOption, areas]);
 
   const fetchCustomers = async () => {
     const { data, error } = await supabase
@@ -40,6 +77,10 @@ const CustomerList: React.FC = () => {
       .select('*')
     if (error) console.error('Error fetching areas:', error)
     else setAreas(data || [])
+  }
+
+  const handleNewCustomerAdded = (newCustomer: Database['public']['Tables']['customers']['Row']) => {
+    setCustomers(prevCustomers => [...prevCustomers, newCustomer])
   }
 
   const handleOpenServices = (customerId: number) => {
@@ -70,21 +111,32 @@ const CustomerList: React.FC = () => {
     }
   }
 
-
   return (
     <div className="max-w-4xl mx-auto p-5 bg-white shadow-lg rounded-lg">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Customer List</h1>
+      
       <input
         type="text"
         placeholder="Search customers..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="inline-block w-half px-1 py-2 mt-2 mx-5 text-base text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none focus:ring"
+        className="inline-block w-1/4 px-1 py-2 mt-2 mx-2 text-base text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none focus:ring"
       />
+      <select
+        value={sortOption}
+        onChange={(e) => setSortOption(e.target.value)}
+        className="inline-block w-1/4 px-4 py-2 mt-2 mx-2 text-base text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none focus:ring"
+      >
+        <option value="id-asc">ID (Ascending)</option>
+        <option value="id-desc">ID (Descending)</option>
+        <option value="last-name-asc">Last Name (Ascending)</option>
+        <option value="last-name-desc">Last Name (Descending)</option>
+        <option value="area-asc">Area (Ascending)</option>
+        <option value="area-desc">Area (Descending)</option>
+      </select>
       <select
         value={selectedAreaId || ''}
         onChange={(e) => setSelectedAreaId(e.target.value ? Number(e.target.value) : null)}
-        className="inline-block w-half px-4 py-2 mt-2 mx-5 text-base text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none focus:ring"
+        className="inline-block w-1/4 px-4 py-2 mt-2 mx-2 text-base text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none focus:ring"
       >
         <option value="">All Areas</option>
         {areas.map(area => (
@@ -92,7 +144,7 @@ const CustomerList: React.FC = () => {
         ))}
       </select>
       <Button 
-         className="bg-yellow-300 hover:bg-yellow-500 text-black" 
+         
         onClick={() => setIsCreateModalOpen(true)}>
         New Customer
        </Button>
@@ -106,6 +158,7 @@ const CustomerList: React.FC = () => {
             <TableHeader text="ID" />
             <TableHeader text="Name" />
             <TableHeader text="Address" />
+            <TableHeader text="Area" />
             <TableHeader text="Phone" />
             <TableHeader text="Edit" />
             <TableHeader text="Services" />
@@ -119,7 +172,11 @@ const CustomerList: React.FC = () => {
               <TableCell>{customer.customer_id}</TableCell>
               <TableCell>{`${customer.first_name} ${customer.last_name}`}</TableCell>
               <TableCell>{customer.street_address}</TableCell>
+              <TableCell>
+                {areas.find(area => area.area_id === customer.area_id)?.area_name || 'N/A'}
+              </TableCell>
               <TableCell>{customer.phone_1}</TableCell>
+              
               <TableCell>
                 <Button 
                   
@@ -154,7 +211,10 @@ const CustomerList: React.FC = () => {
         />
       )}
       {isCreateModalOpen && (
-        <CustomerCreate onClose={() => setIsCreateModalOpen(false)} />
+        <CustomerCreate
+          onClose={() => setIsCreateModalOpen(false)}
+          onCustomerAdded={handleNewCustomerAdded} // Pass the callback to CustomerCreate
+        />
       )}
     </div>
   )

@@ -12,7 +12,7 @@ const StyledSection: React.FC<StyledSectionProps> = ({ title, children, isTable 
 
   return (
     <div className={`${baseClasses} ${tableClasses}`}>
-      <h2 className="text-xl font-bold text-gray-800 mb-4">{title}</h2>
+      <h2 className="text-lg font-bold text-gray-800 mb-2">{title}</h2>
       <div>{children}</div>
     </div>
   );
