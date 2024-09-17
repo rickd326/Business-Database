@@ -6,3 +6,5 @@ const initiateOAuth = () => {
   
     window.location.href = `https://accounts.zoho.com/oauth/v2/auth?response_type=${responseType}&client_id=${clientId}&scope=${scope}&redirect_uri=${redirectUri}&access_type=offline&prompt=consent`;
   };
+
+export {};
