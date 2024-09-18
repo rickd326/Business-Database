@@ -279,6 +279,9 @@ export interface Database {
           status: string;
           active: Nullable<boolean>;
           customer_id: number;
+          contract_service_notes: Nullable<Json>;
+          total: Nullable<number>;
+          service_name: string;
         }
       }
     }
